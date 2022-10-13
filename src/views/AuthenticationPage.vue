@@ -41,8 +41,11 @@ const login = async () => {
     await authService.login(userDetails.value.email, userDetails.value.password)
     await router.replace('/home');
   }catch (error){
-    console.error(error)
-  }
+    await (await toastController.create({
+      message: `${error}`,
+      duration: 3000,
+      color: "warning"
+    })).present();  }
 }
 
 
