@@ -1,68 +1,107 @@
+<script setup lang="ts">
+import {
+  IonButton,
+  IonButtons,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonPage,
+  IonTitle,
+  IonToolbar, onIonViewDidEnter
+} from '@ionic/vue';
+import {addCircleOutline} from "ionicons/icons";
+import {ref} from "vue";
+import {directus} from "@/services/directus.service";
+import CampingSpotCard from "@/components/CampingSpotCard.vue";
+
+const campingSpots = ref([])
+
+onIonViewDidEnter(async () => {
+  const response = await directus.graphql.items(`
+query MyQuery {
+  camping_spots {
+    id
+    title
+    description
+    hashtags
+    image {
+      id
+    }
+    user_created {
+      first_name
+    }
+  }
+}
+`)
+
+  if (response.status === 200 && response.data) {
+    campingSpots.value = [...response.data.camping_spots];
+    console.log(campingSpots.value)
+  }
+
+})
+
+
+/*let id = 1;
+
+const campingSpots = ref([
+  {
+    id: id++,
+    title: "Fin plass ved Ulsrudvann",
+    description: "Fant den en vakker dag",
+    hashtags: "#camping #oslo",
+    imageURL: "https://images.squarespace-cdn.com/content/v1/587642149f7456eeebf28e13/1560419927810-JZX1PLQ34SLZ95GY3TF3/Telttur-ved-Oslofjorden-8.jpg?format=1500w"
+  },
+]);
+
+const addCampSpot = () => {
+  const newSpot = {
+    id: id++,
+    title: "Fin plass ved Holmlia",
+    description: "Fant den en normal dag",
+    hashtags: "#camping #oslo #holmlia",
+    imageURL: "https://i0.wp.com/tikicamp.com/wp-content/uploads/2022/06/DSC_6053.jpg?fit=2048%2C1365&ssl=1"
+
+  }
+  campingSpots.value.unshift(newSpot);
+
+  //If I have the whole object inside unshift and spread operator, I will get different value for each of them I.E: 1,2,3. And not 1,2,2,3,3
+
+  campingSpots.value = [newSpot, ...campingSpots.value];
+
+  console.log(campingSpots.value)
+}
+  console.log(id)*/
+
+
+</script>
+
 <template>
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-title>Blank</ion-title>
+        <ion-title>Baal ⛺</ion-title>
+        <ion-buttons slot="primary">
+          <ion-button router-link="/newSpot">
+            <ion-icon slot="icon-only" :icon="addCircleOutline"></ion-icon>
+          </ion-button>
+          <ion-button href="/auth">
+            <ion-icon slot="icon-only" :icon="addCircleOutline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    
+
     <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
-        </ion-toolbar>
-      </ion-header>
-    
-      <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-      </div>
+     <camping-spot-card v-for="spot in campingSpots" :key="spot.id" :spot="spot" />
+      <CampingSpotCard v-for="spot in campingSpots" :key="spot.id" />
+
     </ion-content>
   </ion-page>
 </template>
 
-<script lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'HomePage',
-  components: {
-    IonContent,
-    IonHeader,
-    IonPage,
-    IonTitle,
-    IonToolbar
-  }
-});
-</script>
-
-<style scoped>
-#container {
-  text-align: center;
-  
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-  
-  color: #8c8c8c;
-  
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
-</style>
