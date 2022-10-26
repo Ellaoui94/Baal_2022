@@ -1,6 +1,10 @@
 <script setup lang="ts">
 
-defineProps(["imageId"]);
+interface Props {
+  imageId:number
+}
+
+const props = defineProps<Props>()
 
 const userAccessToken = localStorage.getItem('auth_token')
 

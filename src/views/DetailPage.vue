@@ -61,27 +61,61 @@ const userAccessToken = localStorage.getItem('auth_token')
 })*/
 
 const campingSpots = ref({})
+const comments = ref([])
 
-onIonViewDidEnter(async () => {
+interface ICampingSpot{
+  camping_spots_by_id: {
+    title: string,
+    description: string,
+    hashtags: string[],
+    image: {
+      id: number
+    },
+    user_created: {
+      first_name: string
+    },
+    comment_fk:{
+      id: number,
+      first_name: string,
+      comment: string,
+      date_created: string
+    }
+  }
+}
+
+const loadSpot = async () => {
   const response = await directus.graphql.items(`
 query MyQuery {
   camping_spots_by_id(id: ${id}) {
     title
     description
+    hashtags
     image {
       id
+    }
+    user_created {
+      first_name
+    }
+    comment_fk {
+      id
+      first_name
+      comment
+      date_created
     }
   }
 }
 `)
+  const responseData = response.data as ICampingSpot
 
-  if (response.status === 200 && response.data) {
-    campingSpots.value = response.data.camping_spots_by_id;
-    console.log(campingSpots.value)
+  if (response.status === 200 && responseData) {
+    campingSpots.value = responseData.camping_spots_by_id;
+    comments.value = responseData.camping_spots_by_id.comment_fk
   }
+}
 
+onIonViewDidEnter(async () => {
+ await loadSpot()
 })
-
 
 //------------------------------------------------------------------------
 const printCurrentPosition = async () => {
@@ -104,18 +138,24 @@ console.log(latitude)
 
 
 isModalOpen.value = false;
-newCommentText.value = '';
 
-const addNewComment = () => {
-  campingSpots.value.comments.unshift({
-    id: 2,
-    username: "N/A",
-    comment: newCommentText.value
-  })
+const addNewComment = async () => {
+  if (newCommentText.value) {
+    try {
+      await directus.items('campSpot_comments').createOne({
+        first_name: campingSpots.value.user_created.first_name,
+        comment: newCommentText.value,
+        campSpot_fk: id,
+      })
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  newCommentText.value = "";
+  isModalOpen.value = false;
+  await loadSpot();
 }
-
-console.log(campingSpots)
-
 </script>
 
 <template>
@@ -148,13 +188,6 @@ console.log(campingSpots)
         <ion-chip v-for="hashtag in campingSpots.hashtags" :key="hashtag" color="tertiary">#{{ hashtag }}</ion-chip>
 
         <ion-card>
-          <ion-card-header>
-            <ion-card-subtitle v-for="tag in campingSpots.hashtags" :key="tag" style="display: inline-block">
-              #{{ tag }}
-            </ion-card-subtitle>
-            <ion-card-subtitle>Turbeskrivelse</ion-card-subtitle>
-          </ion-card-header>
-
           <ion-card-title>{{ campingSpots.title }}</ion-card-title>
           <ion-card-content>
             {{ campingSpots.description }}
@@ -169,14 +202,14 @@ console.log(campingSpots)
                 <ion-icon :icon="chatboxOutline"></ion-icon>
               </ion-label>
             </ion-list-header>
-            <ion-item v-for="comment in campingSpots.comments" :key="comment.id" lines="none">
+            <ion-item v-for="comment in comments" :key="comment.id" lines="none">
               <ion-avatar slot="start">
                 <camping-spot-image :image-id="campingSpots.image.id"/>
               </ion-avatar>
               <ion-label class="ion-text-wrap">
-                <ion-text>
-                  <b>{{ comment.username }}</b>
-                </ion-text>
+                <ion-header>
+                  <b>{{ comment.first_name }}</b>
+                </ion-header>
                 <ion-text>
                   <b>{{ comment.comment }}</b>
                 </ion-text>

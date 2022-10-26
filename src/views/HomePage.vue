@@ -12,16 +12,35 @@ import {
   IonIcon,
   IonPage,
   IonTitle,
-  IonToolbar, onIonViewDidEnter
+  IonToolbar, onIonViewDidEnter, IonRefresher, IonRefresherContent
 } from '@ionic/vue';
-import {addCircleOutline} from "ionicons/icons";
+import {addCircleOutline, chevronDownCircleOutline  } from "ionicons/icons";
 import {ref} from "vue";
 import {directus} from "@/services/directus.service";
 import CampingSpotCard from "@/components/CampingSpotCard.vue";
 
 const campingSpots = ref([])
 
+interface ICampingSpotS{
+  camping_spots: {
+    id: number,
+    title: string,
+    description: string,
+    hashtags: string[],
+    image: {
+      id: number
+    },
+    user_created: {
+      first_name: string
+    },
+  }
+}
+
 onIonViewDidEnter(async () => {
+  await testFun()
+})
+
+const testFun = async () => {
   const response = await directus.graphql.items(`
 query MyQuery {
   camping_spots {
@@ -39,14 +58,13 @@ query MyQuery {
 }
 `)
 
-  if (response.status === 200 && response.data) {
-    campingSpots.value = [...response.data.camping_spots];
-    console.log(campingSpots.value)
+  const responseData = response.data as ICampingSpotS
+
+  if (response.status === 200 && responseData) {
+    campingSpots.value = [...responseData.camping_spots];
   }
 
-})
-
-
+}
 /*let id = 1;
 
 const campingSpots = ref([
@@ -78,6 +96,10 @@ const addCampSpot = () => {
 }
   console.log(id)*/
 
+const doRefresh = (event: CustomEvent) => {
+  testFun()
+  event.target.complete();
+}
 
 </script>
 
@@ -98,9 +120,13 @@ const addCampSpot = () => {
     </ion-header>
 
     <ion-content :fullscreen="true">
-     <camping-spot-card v-for="spot in campingSpots" :key="spot.id" :spot="spot" />
-      <CampingSpotCard v-for="spot in campingSpots" :key="spot.id" />
-
+      <ion-refresher slot="fixed"  pull-factor="0.5" pull-min="100" pull-max="200" @ionRefresh="doRefresh($event)">
+        <ion-refresher-content :pulling-icon="chevronDownCircleOutline"
+                               pulling-text="Pull to refresh"
+                               refreshing-spinner="circles"
+                               refreshing-text="Refreshing..."></ion-refresher-content>
+      </ion-refresher>
+      <camping-spot-card v-for="spot in campingSpots" :key="spot.id" :spot="spot" />
     </ion-content>
   </ion-page>
 </template>

@@ -21,16 +21,21 @@ import {
 import { ref } from 'vue';
 import {useRouter} from "vue-router";
 
+interface IUserDetails{
+  firstName: string,
+  email: string,
+  password: string
+}
 
 const router = useRouter();
 /* State */
 
-let mode = ref(false)
+let mode = ref(true)
 // The user can toggle between login and register mode in the form to show/hide additional fields
-const inRegisterMode = ref(false);
+const inRegisterMode = ref(true);
 
 // Provides two-way data binding between Vue and the input fields in the form
-const userDetails = ref({
+const userDetails = ref<IUserDetails>({
   firstName: '',
   email: '',
   password: ''

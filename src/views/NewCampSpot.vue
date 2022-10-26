@@ -24,7 +24,7 @@ const newCampSpot = ref({
   title: "",
   description: "",
   hashtags: [],
-  image: ""
+  image: "",
 });
 
 const addNewHashtag = () => {
@@ -33,6 +33,7 @@ const addNewHashtag = () => {
     newHashTag.value = "";
   }
 }
+
 
 const postNewCampSpot = async () => {
   if (!newCampSpot.value.image) {
@@ -53,7 +54,6 @@ const postNewCampSpot = async () => {
         title: newCampSpot.value.title,
         description: newCampSpot.value.description,
         hashtags: newCampSpot.value.hashtags,
-        comments: [],
         image: fileUpload.id
       })
     }

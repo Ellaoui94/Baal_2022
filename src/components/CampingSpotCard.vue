@@ -2,7 +2,11 @@
 import {IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent} from "@ionic/vue";
 import CampingSpotImage from "@/components/CampingSpotImage.vue";
 
-defineProps(["spot"]);
+interface Props {
+  spot:any
+}
+
+const props = defineProps<Props>()
 
 </script>
 
