@@ -3,7 +3,15 @@ import {IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent} f
 import CampingSpotImage from "@/components/CampingSpotImage.vue";
 
 interface Props {
-  spot:any
+  spot: {
+    id: number,
+    image:{
+      id: number
+    },
+    hashtags: [],
+    title: string,
+    description: string
+  }
 }
 
 const props = defineProps<Props>()

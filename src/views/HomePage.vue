@@ -21,8 +21,9 @@ import CampingSpotCard from "@/components/CampingSpotCard.vue";
 
 const campingSpots = ref([])
 
+//Siden responesn er flere enn en, så ha med array[]
 interface ICampingSpotS{
-  camping_spots: {
+  camping_spots:[ {
     id: number,
     title: string,
     description: string,
@@ -33,7 +34,7 @@ interface ICampingSpotS{
     user_created: {
       first_name: string
     },
-  }
+  }]
 }
 
 onIonViewDidEnter(async () => {
@@ -41,7 +42,7 @@ onIonViewDidEnter(async () => {
 })
 
 const testFun = async () => {
-  const response = await directus.graphql.items(`
+  const response = await directus.graphql.items<ICampingSpotS>(`
 query MyQuery {
   camping_spots {
     id

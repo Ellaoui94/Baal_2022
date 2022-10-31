@@ -30,7 +30,7 @@ interface IUserDetails{
 const router = useRouter();
 /* State */
 
-let mode = ref(true)
+let mode = ref(false);
 // The user can toggle between login and register mode in the form to show/hide additional fields
 const inRegisterMode = ref(true);
 
@@ -85,11 +85,11 @@ const segmentChanged = (e) => {
       <ion-list>
         <ion-header>
           <ion-toolbar>
-            <ion-segment @ion-change="mode = !mode">
-              <ion-segment-button value="login">
+            <ion-segment value="login">
+              <ion-segment-button @click="mode = false" value="login">
                 <ion-label>Login</ion-label>
               </ion-segment-button>
-              <ion-segment-button value="register">
+              <ion-segment-button @click="mode = true" value="register">
                 <ion-label>Registrer deg</ion-label>
               </ion-segment-button>
             </ion-segment>
@@ -118,7 +118,7 @@ const segmentChanged = (e) => {
 
         <ion-item>
           <ion-label class="label-mild" position="floating">Passord</ion-label>
-          <ion-input type="password" v-model="userDetails.password"></ion-input>
+          <ion-input v-on:keyup.enter="login" type="password" v-model="userDetails.password"/>
         </ion-item>
 
         <ion-button v-if="mode" @click="register" class="button-auth" fill="solid" color="dark" size="default">
